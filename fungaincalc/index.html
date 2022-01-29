@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="viewport" content="width=500,maximum-scale=0.8,user-scalable=no" />
+<meta name="description" content="デレステ用の計算ツール。獲得ファン数→スコア・スコア→獲得ファン数を計算できます。" />
+<meta name="keywords" content="デレステ,ファン数調整,獲得ファン数" />
+<meta name="author" content="ho_fruit785882" />
+<-- update: 2022-01-29 -->
+
+<meta name="og:type" content="article" />
+<meta name="og:title" content="デレステ 獲得ファン数計算機" />
+<meta name="og:description" content="獲得ファン数→スコア・スコア→獲得ファン数を計算" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@ho_fruit785882" />
+<meta name="twitter:title" content="デレステ 獲得ファン数計算機" />
+<meta name="twitter:description" content="獲得ファン数→スコア・スコア→獲得ファン数を計算" />
+
+<title>デレステ 獲得ファン数計算機 β</title>
+
+<style tyle="text/css">
+/* ========== body ========== */
+* { font-size: 0; box-sizing: border-box; }
+body {
+    margin: 72px 0 90px; padding: 0; background-color: #0f0908;
+    font-family: 'Helvetica Neue', 'Arial', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Meiryo UI', sans-serif;
+    -ms-content-zooming: none;
+}
+.content {
+    max-width: 1000px; margin: 0 auto; padding: 10px 10px 100px; touch-action: pan-y;
+}
+
+
+/* ========== header, footer ========== */
+.header, .footer {
+    display: block; position: fixed; z-index: 900; left: 0; width: 100%;
+    background: -moz-linear-gradient(top, #fff 40%, #f3f3f3 70%, #eee 80%, #f1f1f1);
+    background: -webkit-linear-gradient(top, #fff 40%, #f3f3f3 70%, #eee 80%, #f1f1f1);
+    background: linear-gradient(to bottom, #fff 40%, #f3f3f3 70%, #eee 80%, #f1f1f1);
+    box-shadow: 0 0 3px 3px rgba(255,255,255,0.8) inset;
+}
+
+.header { top: 0; height: 82px; padding: 17px 12px 19px; border-bottom: 10px solid #0f0908; }
+.footer { bottom: 0; height: 100px; padding: 15px 12px 15px; text-align: center; border-top: 10px solid #0f0908; }
+
+.header > .title {
+    display: block; position: relative; width: 100%; height: 36px;
+    overflow: hidden; line-height: 36px; padding-left: 28px; 
+    color: #2e2e2e; font-size: 28px; font-weight: bold;
+    letter-spacing: normal; white-space: nowrap; text-overflow: ellipsis;
+    cursor: default; user-select: none; -ms-user-select: none;
+}
+
+.header > .title:before {
+    display: block; position: absolute; width: 20px; height: 36px; top: 0; left: 0; content: "";
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAgCAYAAAAffCjxAAAAXElEQVRIS2PU09P7z4AELl26xAjjkiLHSIpifJYMQoOQw4cSNjxgKTEEpJd6Bg3jWKOa1yiNLZh+6sUa1VxEtTAaxgZRLbAHn0HDONao5rXBF2tUcxHVwmj4GgQAgrC+1Ypsw3kAAAAASUVORK5CYII=);
+    background-repeat: no-repeat; background-size: 100%;
+}
+
+@media screen and (max-height:240px) {
+    body { margin-bottom: 0px; }
+    .header { z-index: 901; }
+    .footer { position: relative; }
+}
+
+
+/* ========== switch button ========== */
+.switch_button { display: block; position: relative; }
+
+.switch_button > label {
+    display: inline-block; position: relative; min-width: 80px; padding: 8px 6px;
+    margin: 6px 0; overflow: hidden;
+    background: -moz-linear-gradient(top, #fff, #eee 40%, #d0d0d0 70%, #d2d2d2);
+    background: -webkit-linear-gradient(top, #fff, #eee 40%, #d0d0d0 70%, #d2d2d2);
+    background: linear-gradient(to bottom, #fff, #eee 40%, #d0d0d0 70%, #d2d2d2);
+    background-color: #fff; border-top: 2px solid #1f1f1f;
+    border-bottom: 2px solid #1f1f1f; border-right: 2px solid #110015;
+    box-shadow: 0 0 2px 2px rgba(255,255,255,0.8) inset;
+    color: #383838; font-size: 20px; font-weight: bold; text-align: center;
+    letter-spacing: normal; white-space: nowrap; text-overflow: ellipsis;
+    cursor: pointer; user-select: none; -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.switch_button > label:first-of-type { border-radius: 12px 0 0 12px; border-left: 2px solid #1f1f1f; }
+.switch_button > label:last-of-type { border-radius: 0 12px 12px 0; border-right-color: #1f1f1f; }
+.switch_button > input[type="radio"] { display: none; }
+.switch_button > input[type="radio"]:checked + label {
+    background: -moz-linear-gradient(top, #b42591, #ba2297 30%, #cf2fa9 40%, #e751c8);
+    background: -webkit-linear-gradient(top, #b42591, #ba2297 30%, #cf2fa9 40%, #e751c8);
+    background: linear-gradient(to bottom, #b42591, #ba2297 30%, #cf2fa9 40%, #e751c8);
+    background-color: #cf2fa9; color: #fff;
+    text-shadow: 
+      2px  2px 1px #580b3e, -2px  2px 1px #580b3e, 2px -2px 1px #580b3e, -2px -2px 1px #580b3e,
+      2px  0px 1px #580b3e, 0px  2px 1px #580b3e, -2px  0px 1px #580b3e, 0px -2px 1px #580b3e;
+}
+
+
+/* ========== button ========== */
+button.button {
+    display: block; position: relative; min-width: 80px; padding: 6px 2px 4px; overflow: hidden;
+    background: -moz-linear-gradient(top, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background: -webkit-linear-gradient(top, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background: linear-gradient(to bottom, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background-color: #fff; border-radius: 4px; border: 1.5px solid #000;
+    box-shadow: 0 4px #000, 0 0 2px 2px rgba(255,255,255,0.8) inset;
+    color: #2c2c2c; font-size: 20px; text-align: center; font-weight: bold;
+    text-decoration: none; outline: none;
+    letter-spacing: normal; white-space: nowrap; text-overflow: ellipsis;
+    cursor: pointer; user-select: none; -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+button.button:active { transform: translateY(4px); box-shadow: 0 0 2px 2px rgba(255,255,255,0.8) inset !important; }
+
+button.button.exec {
+    background: linear-gradient(to bottom, #f793d9, #ed69cc 40%, #e24ebc 60%, #d233aa 90%, #d32faa);
+    background-color: #fff; color: #fbf1f9; border: 2px solid #000;
+    text-shadow: 
+      2px  2px 1px #510f3d, -2px  2px 1px #510f3d, 2px -2px 1px #510f3d, -2px -2px 1px #510f3d,
+      2px  0px 1px #510f3d, 0px  2px 1px #510f3d, -2px  0px 1px #510f3d, 0px -2px 1px #510f3d;
+}
+
+.footer > .button { display: inline-block; margin-left: 8px; margin-right: 8px; }
+
+
+/* ========== section heading ========== */
+h1 {
+    display: block; position: relative; width: 100%; height: 35px; line-height: 30px;
+    margin-top: 12px; margin-bottom: 4px; padding-left: 26px; overflow: hidden;
+    background-image: -moz-linear-gradient(left, #fff, #fff 3px, transparent 3px, transparent 7px);
+    background-image: -webkit-linear-gradient(left, #fff, #fff 3px, transparent 3px, transparent 7px);
+    background-image: linear-gradient(to right, #fff, #fff 3px, transparent 3px, transparent 7px);
+    background-size: 7px 3px; background-position: left bottom; background-repeat: repeat-x;
+    color: #fdfdfd; font-size: 22px; font-weight: bold;
+    letter-spacing: normal; white-space: nowrap; text-overflow: ellipsis;
+    cursor: default; user-select: none; -ms-user-select: none;
+}
+
+h1:before {
+    display: block; position: absolute; width: 16px; height: 30px; top: 0; left: 0; content: "";
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAgCAYAAAAffCjxAAAAV0lEQVRIS82RMQoAIAwDzf8fHXFQOgmlGc5J0cbjItteZUnSPbbuWo9/n/CCqp/J/omdhJzZXBBPNo9o2tadz7UWI+LJ5hHFZPOCeLJ5RLzWYkQ82TiiDRAE79EusS6qAAAAAElFTkSuQmCC);
+    background-repeat: no-repeat; background-size: 100%;
+}
+
+h1 + .content_block { padding: 2px 16px 6px; }
+h1.hidden, .content_block.hidden { display: none; }
+
+
+/* ========== calc result ========== */
+.calc_result {
+    display: block; position: relative; overflow: hidden; width: 100%; margin-bottom: 8px;
+    color: #fff; font-size: 34px; font-weight: bold; text-align: center; word-break: break-word;
+    text-shadow: 
+      2px  2px 4px #1f8de6, -2px  2px 4px #1f8de6, 2px -2px 4px #1f8de6, -2px -2px 4px #1f8de6,
+      2px  0px 4px #1f8de6, 0px  2px 4px #1f8de6, -2px  0px 4px #1f8de6, 0px -2px 4px #1f8de6;
+}
+
+.calc_result > .small_text { font-size: 20px; white-space: nowrap; }
+.calc_result::selection, .calc_result > .small_text::selection { color: #fff; background-color: #3399ff; }
+.calc_result::-moz-selection, .calc_result > .small_text::-moz-selection { color: #fff; background-color: #3399ff; }
+
+
+/* ========== checkbox ========== */
+.checkbox { display: inline-block; position: relative; margin-top: 6px; margin-bottom: 6px; }
+.checkbox > input[type="checkbox"] {display: none; }
+.checkbox > label {
+    height: 38px; padding: 0; padding-left: 40px; margin: 0 6px; overflow: hidden;
+    color: #fdfdfd; font-size: 20px; line-height: 38px;
+    font-weight: bold; white-space: nowrap; text-overflow: ellipsis;
+    cursor: pointer; user-select: none; -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.checkbox > label:before {
+    display: block; position: absolute; top: 0; left: 0; width: 38px; height: 36px; content: '';
+    background: -moz-linear-gradient(top, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background: -webkit-linear-gradient(top, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background: linear-gradient(to bottom, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background-color: #fff; border-radius: 4px; border: 1.5px solid #1f1f1f;
+    box-shadow: 0 4px #000, 0 0 2px 2px rgba(255,255,255,0.8) inset;
+}
+
+.checkbox > label:after {
+    display: block; position: absolute; top: 2px; left: 1px; width: 38px; height: 36px; content: '';
+    background: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20380%20360%22%20width%3D%2238px%22%20height%3D%2236px%22%20preserveAspectRatio%3D%22xMinYMid%22%3E%3Cpath%20fill%3D%22%23b9b9b9%22%20stroke%3D%22%23606060%22%20stroke-width%3D%226%22%20d%3D%22M50%2C160%20L118%2C132%20L166%2C190%20L298%2C52%20L336%2C126%20L160%2C275%20z%22%20%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat; background-size: 100%;
+}
+
+.checkbox > label:active:before, .checkbox > label:active:after {
+    box-shadow: 0 0 2px 2px rgba(255,255,255,0.8) inset; transform: translateY(3px);
+}
+.checkbox > input[type="checkbox"]:checked + label:after {
+    background: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20380%20360%22%20width%3D%2238px%22%20height%3D%2236px%22%20preserveAspectRatio%3D%22xMinYMid%22%3E%3Cpath%20fill%3D%22%23df27ad%22%20stroke%3D%22%23650a47%22%20stroke-width%3D%228%22%20d%3D%22M50%2C160%20L118%2C132%20L166%2C190%20L298%2C52%20L336%2C126%20L160%2C275%20z%22%20%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat; background-size: 100%;
+}
+.checkbox:not(:last-of-type) { margin-right: 20px; }
+
+
+/* ========== radio button ========== */
+.radiobutton { display: inline-block; position: relative; margin-top: 6px; margin-bottom: 6px; }
+.radiobutton > input[type="radio"] {display: none; }
+.radiobutton > label {
+    height: 30px; padding: 0; padding-left: 32px; margin: 0 6px; overflow: hidden;
+    color: #fdfdfd; font-size: 20px; line-height: 30px;
+    font-weight: bold; white-space: nowrap; text-overflow: ellipsis;
+    cursor: pointer; user-select: none; -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.radiobutton > label:before {
+    display: block; position: absolute; top: 0; left: 0; width: 30px; height: 30px; content: '';
+    background-color: #fff; border-radius: 50%; border: 2px solid #1f1f1f;
+    box-shadow: 0 0 2px 2px rgba(255,255,255,0.8) inset;
+}
+
+.radiobutton > label:after {
+    display: block; position: absolute; top: 6.5px; left: 6.5px; width: 20px; height: 20px; content: '';
+    background-image: -moz-linear-gradient(top, #aaa, #ccc 25%, #ddd 66%, #fff);
+    background-image: -webkit-linear-gradient(top, #aaa, #ccc 25%, #ddd 66%, #fff);
+    background-image: linear-gradient(to bottom, #aaa, #ccc 25%, #ddd 66%, #fff);
+    background-color: #fff; border-radius: 50%;
+}
+
+.radiobutton > input[type="radio"]:checked + label:after {
+    background-image: linear-gradient(to bottom, #fff, #ffc5f0 10%, #e349bc 25%, #cc158d 60%, #cf0ba1);
+    background-color: #fff; border: 2px solid #7f2368; box-sizing: border-box;
+    box-shadow: 0 0 2px 2px rgba(255,255,255,0.8) inset;
+}
+
+
+.radiobutton:not(:last-of-type) { margin-right: 24px; }
+
+
+
+/* ========== listbox ========== */
+.listbox { display: inline-block; position: relative; min-width: 120px; margin-right: 20px; margin-bottom: 12px; }
+
+.listbox > label {
+    display: block; position: relative; margin-bottom: 3px; width: 100%; overflow: hidden;
+    color: #fdfdfd; font-size: 20px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis;
+    user-select: none; -ms-user-select: none;
+}
+
+.listbox > .listbox_frame { display: block; position: relative; margin: 0; padding: 0; }
+.listbox > .listbox_frame:after {
+    display: block; position: absolute; width: 24px; height: 24px; top: 50%; right: 6px; content: '';
+    background: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2060%2060%22%20width%3D%2230px%22%20height%3D%2230px%22%20preserveAspectRatio%3D%22xMinYMid%22%3E%3ClinearGradient%20id%3D%22g0%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ebd1e0%22%3E%3C%2Fstop%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23cf68b1%22%3E%3C%2Fstop%3E%3C%2FlinearGradient%3E%3Cpath%20fill%3D%22url(%23g0)%22%20stroke%3D%22%23190b12%22%20stroke-width%3D%224%22%20d%3D%22M5%2C15%20L55%2C15%20L30%2C48%20z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E');
+    transform: translateY(-50%); background-repeat: no-repeat; background-size: 100%; pointer-events: none;
+}
+
+.listbox > .listbox_frame > select {
+    display: block; position: relative; padding: 2px 8px; padding-right: 30px; width: 100%; overflow: hidden;
+    background: -moz-linear-gradient(top, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background: -webkit-linear-gradient(top, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background: linear-gradient(to bottom, #fff, #efefef 40%, #e2e2e2 75%, #d5d5d5 90%, #d8d8d8);
+    background-color: #fff; border: 1.5px solid #1f1f1f; border-radius: 6px;
+    box-shadow: 0 4px #000,  0 0 2px 2px rgba(255,255,255,0.8) inset;
+    color: #323232; font-size: 20px; font-weight: bold; white-space: nowrap; text-overflow: ellipsis;
+    outline: none!important; appearance: none; -webkit-appearance: none;
+    cursor: pointer; user-select: none; -ms-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.listbox > .listbox_frame > select::-ms-expand { display: none; }
+.listbox > .listbox_frame:active > select { box-shadow: 0 0 2px 2px rgba(255,255,255,0.8) inset; transform: translateY(3px); }
+.listbox > .listbox_frame:active:after { transform: translateY(-50%) translateY(3px); }
+.listbox > .listbox_frame > select > option {
+    background-color: #fff; border: none; box-shadow: none;
+    color: #323232; font-size: 20px; line-height: 20px; text-align: center; font-weight: bold;
+}
+
+
+/* ========== textbox ========== */
+input.textbox {
+    display: inline-block; position: relative; min-width: 120px;
+    margin-top: 4px; margin-bottom: 4px; padding: 2px 6px; vertical-align: middle;
+    border: 1.5px solid #1f1f1f; box-shadow: 1.5px 1.5px 4px 2px rgba(0,0,0,0.2) inset;
+    color: #2f2f2f; font-size: 20px; font-weight: bold; text-align: center;
+    white-space: nowrap; outline: none; -moz-appearance: textfield;
+}
+input.textbox::placeholder { color:#cccccc; }
+input.textbox::-webkit-input-placeholder { color:#cccccc; }
+input.textbox:-ms-input-placeholder { color:#cccccc; }
+input.textbox + input[type="text"].textbox { margin-left: 20px; }
+
+input.textbox + .text_range {
+    display: inline-block; position: relative; overflow: hidden;
+    margin-top: 4px; margin-bottom: 4px; padding: 2px 6px; vertical-align: middle;
+    color: #fdfdfd; font-size: 20px; font-weight: bold; text-align: center;
+    cursor: default; white-space: nowrap; text-overflow: ellipsis; user-select: none; -ms-user-select: none;
+}
+
+input.textbox::-webkit-outer-spin-button, input.textbox::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+}
+
+
+/* ========== caution text ========== */
+.caution {
+    display: block; position: relative; padding: 0; margin: 2px 0px 8px;
+    color: #fc7971; font-size: 16px; line-height: 20px; font-weight: bold;
+    vertical-align: top; text-align: center;
+    cursor: default; user-select: none; -ms-user-select: none;
+}
+.caution.hidden, .caution.hidden:before { display: none; }
+
+.caution:before {
+    display: inline-block; position: relative; top: 0; left: 0; width: 24px; height: 24px; content: '';
+    margin: 0; margin-right: 4px; padding: 0; vertical-align: top;
+    background: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20width%3D%2224px%22%20height%3D%2224px%22%20preserveAspectRatio%3D%22xMinYMid%22%3E%3ClinearGradient%20id%3D%22g01%22%20gradientTransform%3D%22rotate(60)%22%3E%3Cstop%20offset%3D%2220%25%22%20stop-color%3D%22%23ef8c24%22%3E%3C%2Fstop%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23d13014%22%3E%3C%2Fstop%3E%3C%2FlinearGradient%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22url(%23g01)%22%3E%3C%2Fcircle%3E%3Crect%20x%3D%2238%22%20y%3D%2215%22%20width%3D%2224%22%20height%3D%2248%22%20fill%3D%22%23fff%22%3E%3C%2Frect%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2277%22%20r%3D%228%22%20fill%3D%22%23fff%22%3E%3C%2Fcircle%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat; background-size: 100%;
+}
+
+
+
+/* ========== layout ========== */
+.switch_button#calctype {text-align: center; }
+.switch_button#calctype > label { width: 200px; }
+#form_fun, #form_score { text-align: center; }
+input#min_fun, input#max_fun { width: 100px; }
+input#score { width: 200px; }
+#stamina > .radiobutton { width: 100px; }
+.button#cancel, .button#exec { width: 130px; }
+
+
+
+
+</style>
+
+<script type="text/javascript">
+
+function changeCalcType(elem) {
+    //計算種類の変更
+    if(!elem.checked) return;
+    toggleClass(document.getElementById("head_fun"), "hidden", elem.id != "fun-to-score");
+    toggleClass(document.getElementById("form_fun"), "hidden", elem.id != "fun-to-score");
+    toggleClass(document.getElementById("head_score"), "hidden", elem.id != "score-to-fun");
+    toggleClass(document.getElementById("form_score"), "hidden", elem.id != "score-to-fun");
+}
+
+function resetForm() {
+    //入力内容をリセット
+    document.getElementById("min_fun").value = "";
+    document.getElementById("max_fun").value = "";
+    document.getElementById("score").value = "";
+    document.getElementById("list_roomitem").selectedIndex = 0;
+    document.getElementById("list_produceplan").selectedIndex = 0;
+    document.getElementById("list_campaign").selectedIndex = 0;
+    document.getElementById("list_center").selectedIndex = 0;
+    document.getElementById("list_guest").selectedIndex = 0;
+    document.getElementById("stamina_1").checked = true;
+    document.getElementById("premium_pass").checked = false;
+    document.getElementById("calc_result").innerHTML = "";
+    toggleClass(document.getElementById("just_err"), "hidden", true);
+}
+
+
+function execCalc() {
+    //計算実行関数
+
+    var temp_val;
+
+    //入力値取得
+    var calctype = getRadioValue("calctype");
+
+    switch(calctype) {
+        case "fun-to-score":
+            var min_fun = document.getElementById("min_fun").value;
+            var max_fun = document.getElementById("max_fun").value;
+            if(min_fun == "" && max_fun != "") min_fun = max_fun;
+            if(min_fun != "" && max_fun == "") max_fun = min_fun;
+            min_fun = Number(min_fun); max_fun = Number(max_fun);
+            if(min_fun == 0 && max_fun == 0) return;
+            if(!Number.isInteger(min_fun) || !Number.isInteger(max_fun)) {
+                alert('ファン数が正しく入力されていません。'); return;
+            }
+            if(min_fun > max_fun) {
+                temp_val = max_fun; max_fun = min_fun; min_fun = temp_val;
+            }
+            break;
+
+        case "score-to-fun":
+            var score = Number(document.getElementById("score").value);
+            if(score == 0) return;
+            if(!Number.isInteger(score)) {
+                alert('スコアが正しく入力されていません。'); return;
+            }
+            break;
+    }
+
+    var roomitem = 0;
+    if(document.getElementById("list_roomitem").value != "none") {
+        roomitem = Number(document.getElementById("list_roomitem").value);
+    }
+
+    var produceplan = 0;
+    if(document.getElementById("list_produceplan").value != "none") {
+        produceplan = Number(document.getElementById("list_produceplan").value);
+    }
+
+    var campaign = 1;
+    switch(document.getElementById("list_campaign").value) {
+        case "2": campaign = 2; break;
+    }
+
+    var center = 0;
+    switch(document.getElementById("list_center").value) {
+        case "sr_cutecross": center= 0.08; break;
+        case "ssr_cutecross": center = 0.1; break;
+        case "sr_charm": center = 0.32; break;
+        case "ssr_charm": center = 0.4; break;
+    }
+
+    var guest = 0;
+    switch(document.getElementById("list_guest").value) {
+        case "sr_cutecross": guest= 0.08; break;
+        case "ssr_cutecross": guest = 0.1; break;
+        case "sr_charm": guest = 0.32; break;
+        case "ssr_charm": guest = 0.4; break;
+    }
+
+    var stamina = Number(getRadioValue("stamina"));
+
+    var premium_pass = 1;
+    if(document.getElementById("premium_pass").checked) premium_pass = 1.1;
+
+    var param = {
+        roomitem: roomitem,
+        center: center,
+        guest: guest,
+        campaign: campaign,
+        produceplan: produceplan,
+        premium_pass: premium_pass,
+        stamina: stamina,
+        livemode: "normal"
+    };
+
+
+    switch(calctype) {
+        //スコア→ファン数計算
+        case "score-to-fun":
+            var fungain = score_to_fun(score, param);
+            document.getElementById("calc_result").innerHTML = "獲得ファン数: " + fungain.toLocaleString() + "人";
+            toggleClass(document.getElementById("just_err"), "hidden", true);
+            break;
+
+
+        //ファン数→スコア計算
+        case "fun-to-score":
+            var plan = Decimal.plus(1, produceplan);
+            var bonus = Decimal.plus(Decimal.plus(Decimal.plus(1, roomitem), center), guest);
+
+            var max_score = Math.floor(Decimal.div(max_fun, premium_pass));
+            max_score = Decimal.div(max_score, plan);
+            max_score = Math.floor(Decimal.div(max_score, stamina));
+            max_score = Math.floor(Decimal.div(max_score, campaign));
+            max_score = Decimal.div(max_score, bonus);
+            max_score = Math.floor(Decimal.times(max_score, 1000));
+            var fungain = score_to_fun(max_score, param);
+
+            if(max_fun < fungain) {
+                do {
+                    max_score--; fungain = score_to_fun(max_score, param);
+                } while(max_fun < fungain);
+            } else {
+                do {
+                    max_score++; fungain = score_to_fun(max_score, param);
+                } while(max_fun >= fungain);
+                max_score--;
+            }
+            var max_fungain = score_to_fun(max_score, param);
+
+
+            var min_score = Math.floor(Decimal.div(min_fun - 1, stamina));
+            min_score = Math.floor(Decimal.div(min_score, premium_pass));
+            min_score = Decimal.div(min_score, plan);
+            min_score = Math.floor(Decimal.div(min_score, campaign));
+            min_score = Decimal.div(min_score, bonus);
+            min_score = Math.floor(Decimal.times(min_score, 1000));
+            fungain = score_to_fun(min_score, param);
+
+            if(min_fun > fungain) {
+                do {
+                    min_score++; fungain = score_to_fun(min_score, param);
+                } while(min_fun > fungain);
+            } else {
+                do {
+                    min_score--; fungain = score_to_fun(min_score, param);
+                } while(min_fun <= fungain);
+                min_score++;
+            }
+            var min_fungain = score_to_fun(min_score, param);
+
+            if(min_score > max_score) {
+                temp_val = max_score; max_score = min_score; min_score = temp_val;
+                temp_val = max_fungain; max_fungain = min_fungain; min_fungain = temp_val;
+            }
+
+            var just_err = (min_fun == max_fun && min_fun != min_fungain && max_fun != max_fungain);
+            max_fungain = '<span class="small_text">（' + max_fungain.toLocaleString() + '人）</span>';
+            min_fungain = '<span class="small_text">（' + min_fungain.toLocaleString() + '人）</span>';
+            document.getElementById("calc_result").innerHTML = "スコア: " + min_score + min_fungain + " ～ " + max_score + max_fungain;
+            toggleClass(document.getElementById("just_err"), "hidden", !just_err);
+            break;
+    }
+
+
+    window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+}
+
+
+function score_to_fun(score, param) {
+    //獲得ファン数計算
+    var fungain = Decimal.times(score, 0.001);
+    var bonus = Decimal.plus(Decimal.plus(Decimal.plus(1, param.roomitem), param.center), param.guest);
+    fungain = Math.ceil(Decimal.times(fungain, bonus));
+    fungain = fungain * param.campaign;
+    fungain = fungain * param.stamina;
+    bonus = Decimal.plus(1, param.produceplan);
+    fungain = Math.ceil(Decimal.times(fungain, bonus));
+    fungain = Math.ceil(Decimal.times(fungain, param.premium_pass));
+    return fungain;
+}
+
+
+function toggleClass(obj, cls, state) {
+    var clslist = obj.className.split(" ");
+    var clsindex = clslist.indexOf(cls);
+
+    if(typeof state !== "boolean") {
+        state = clsindex != -1 ? false : true;
+    }
+
+    if(state) {
+        if(clsindex != -1) { return true; }
+        clslist.push(cls);
+    } else {
+        if(clsindex == -1) { return false; }
+        clslist.splice(clsindex, 1);
+    }
+
+    var joincls = clslist.join(" ");
+    obj.className = joincls;
+    return state;
+}
+
+function getRadioValue(name) {
+    var radios = document.getElementsByName(name);
+    for(var i = 0; i < radios.length; i++) {
+        if(radios[i].checked) {
+            if(!radios[i].hasAttribute("value")) return "";
+            return radios[i].value;
+        }
+    }
+    return "";
+}
+
+Number.isInteger = Number.isInteger || function(value) {
+    return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
+}
+
+var Decimal = (function() {
+    function _degits(num1) {
+        var numstr = String(num1), degits = numstr.indexOf('.');
+        return degits == -1 ? 0 : numstr.length - degits - 1;
+    }
+
+    function _bignum(num1, degnum) { return Math.round(num1 * Math.pow(10, degnum)); }
+
+    function _mininum(num1, degnum) {
+        if(degnum == 0) return num1;
+        var isminus = Math.sign(num1) == -1 ? '-' : '';
+        var numstr1 = String(Math.abs(num1));
+        if(numstr1.length < degnum) numstr1 = Array(degnum - numstr1.length + 1).join('0') + numstr1;
+        var numstr2 = numstr1.slice(degnum * -1);
+        numstr1 = numstr1.slice(0, (degnum * -1));
+        return Number(isminus + numstr1 + '.' + numstr2);
+    }
+
+    function _plus(num1, num2) {
+        if(typeof num1 !== 'number' || typeof num2 !== 'number') return NaN;
+        var degits = Math.max(_degits(num1), _degits(num2));
+        num1 = _bignum(num1, degits), num2 = _bignum(num2, degits);
+        num1 = num1 + num2; return _mininum(num1, degits);
+    }
+
+    function _minus(num1, num2) {
+        if(typeof num1 !== 'number' || typeof num2 !== 'number') return NaN;
+        var degits = Math.max(_degits(num1), _degits(num2));
+        num1 = _bignum(num1, degits), num2 = _bignum(num2, degits);
+        num1 = num1 - num2; return _mininum(num1, degits);
+    }
+
+    function _multiply(num1, num2) {
+        if(typeof num1 !== 'number' || typeof num2 !== 'number') return NaN;
+        var degits1 = _degits(num1), degits2 = _degits(num2);
+        num1 = _bignum(num1, degits1), num2 = _bignum(num2, degits2);
+        num1 = num1 * num2; return _mininum(num1, degits1 + degits2);
+    }
+
+    function _divide(num1, num2) {
+        if(typeof num1 !== 'number' || typeof num2 !== 'number') return NaN;
+        var degits = Math.max(_degits(num1), _degits(num2));
+        num1 = _bignum(num1, degits), num2 = _bignum(num2, degits);
+        num1 = num1 / num2; return num1;
+    }
+
+    return {
+        plus: function(num1, num2) { return _plus(num1, num2); },
+        minus: function(num1, num2) { return _minus(num1, num2); },
+        times: function(num1, num2) { return _multiply(num1, num2); },
+        div: function(num1, num2) { return _divide(num1, num2); }
+    };
+})();
+</script>
+
+
+
+</head>
+<body>
+<div class="header"><div class="title">デレステ 獲得ファン数計算機</div></div>
+
+<div class="content">
+  <div id="calctype" class="switch_button">
+    <input type="radio" name="calctype" id="fun-to-score" value="fun-to-score" checked="checked" onchange="changeCalcType(this)" />
+    <label for="fun-to-score">ファン数→スコア</label>
+    <input type="radio" name="calctype" id="score-to-fun" value="score-to-fun" onchange="changeCalcType(this)" />
+    <label for="score-to-fun">スコア→ファン数</label>
+  </div>
+
+  <h1 id="head_fun">獲得したいファン数（1人あたり）</h1>
+  <div id="form_fun" class="content_block">
+    <input id="min_fun" type="number" class="textbox" min="0" value="" spellcheck="false" />
+    <div class="text_range">～</div>
+    <input id="max_fun" type="number" class="textbox" min="0" value="" spellcheck="false" />
+  </div>
+
+  <h1 id="head_score" class="hidden">スコア</h1>
+  <div id="form_score" class="content_block hidden">
+    <input id="score" type="number" class="textbox" min="0" value="" spellcheck="false" />
+  </div>
+
+  <h1>獲得ファン数アップ効果</h1>
+  <div class="content_block">
+    <div class="listbox" id="roomitem">
+      <label>ルームアイテム</label>
+      <div class="listbox_frame"><select id="list_roomitem">
+        <option value="none">効果なし</option>
+        <option value="0.01">Lv1（1%UP）</option>
+        <option value="0.02">Lv2（2%UP）</option>
+        <option value="0.03">Lv3（3%UP）</option>
+        <option value="0.04">Lv4（4%UP）</option>
+        <option value="0.05">Lv5（5%UP）</option>
+        <option value="0.06">Lv6（6%UP）</option>
+        <option value="0.07">Lv7（7%UP）</option>
+        <option value="0.08">Lv8（8%UP）</option>
+        <option value="0.09">Lv9（9%UP）</option>
+        <option value="0.1">Lv10（10%UP）</option>
+      </select></div>
+    </div>
+
+    <div class="listbox" id="produceplan">
+      <label>プロデュース方針</label>
+      <div class="listbox_frame"><select id="list_produceplan">
+        <option value="none">効果なし</option>
+        <option value="0.08">Lv1（8%UP）</option>
+        <option value="0.16">Lv2（16%UP）</option>
+        <option value="0.24">Lv3（24%UP）</option>
+        <option value="0.32">Lv4（32%UP）</option>
+        <option value="0.42">Lv5（42%UP）</option>
+        <option value="0.52">Lv6（52%UP）</option>
+        <option value="0.64">Lv7（64%UP）</option>
+        <option value="0.76">Lv8（76%UP）</option>
+        <option value="0.88">Lv9（88%UP）</option>
+        <option value="1">Lv10（100%UP）</option>
+      </select></div>
+    </div>
+
+    <div class="listbox" id="campaign">
+      <label>キャンペーン効果</label>
+      <div class="listbox_frame"><select id="list_campaign">
+        <option value="none">効果なし</option>
+        <option value="2">ファン数2倍</option>
+      </select></div>
+    </div>
+
+    <div class="listbox" id="center">
+      <label>センター効果</label>
+      <div class="listbox_frame"><select id="list_center">
+        <option value="none">効果なし</option>
+        <option value="sr_cutecross">SRキュートクロス（8%UP）</option>
+        <option value="ssr_cutecross">SSRキュートクロス（10%UP）</option>
+        <option value="sr_charm">SRチャーム（32%UP）</option>
+        <option value="ssr_charm">SSRチャーム（40%UP）</option>
+      </select></div>
+    </div>
+
+    <div class="listbox" id="guest">
+      <label>ゲストセンター効果</label>
+      <div class="listbox_frame"><select id="list_guest">
+        <option value="none">効果なし</option>
+        <option value="sr_cutecross">SRキュートクロス（8%UP）</option>
+        <option value="ssr_cutecross">SSRキュートクロス（10%UP）</option>
+        <option value="sr_charm">SRチャーム（32%UP）</option>
+        <option value="ssr_charm">SSRチャーム（40%UP）</option>
+      </select></div>
+    </div>
+
+    <div class="caution">シンデレラブレス使用時、センター効果はゲスト含めて最大値のみ適用</div>
+  </div>
+
+  <h1>スタミナ消費量</h1>
+  <div id="stamina" class="content_block">
+    <div class="radiobutton">
+      <input type="radio" name="stamina" id="stamina_1" value="1" checked="checked"/><label for="stamina_1">１倍</label>
+    </div>
+    <div class="radiobutton">
+      <input type="radio" name="stamina" id="stamina_2" value="2" /><label for="stamina_2">２倍</label>
+    </div>
+    <div class="radiobutton">
+      <input type="radio" name="stamina" id="stamina_4" value="4" /><label for="stamina_4">４倍</label>
+    </div>
+  </div>
+
+  <h1>プレミアムパス</h1>
+  <div class="content_block">
+    <div class="checkbox"><input type="checkbox" id="premium_pass" /><label for="premium_pass">プレミアムパス契約（10%UP）</label></div>
+  </div>
+
+  <h1>計算結果</h1>
+  <div class="content_block">
+    <div id="calc_result" class="calc_result"></div>
+    <div id="just_err" class="caution hidden">入力したファン数と同数のファン数を獲得できるスコアがありません</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <button id="cancel" class="button" onclick="resetForm()">リセット</button>
+  <button id="exec" class="button exec" onclick="execCalc()">計算</button>
+</div>
+
+</body>
+</html>
