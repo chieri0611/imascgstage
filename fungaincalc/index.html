@@ -8,7 +8,7 @@
 <meta name="description" content="デレステ用の計算ツール。獲得ファン数→スコア・スコア→獲得ファン数を計算できます。" />
 <meta name="keywords" content="デレステ,ファン数調整,獲得ファン数" />
 <meta name="author" content="chieri0611" />
-<!-- update: 2023-04-07 -->
+<!-- update: 2025-09-20 -->
 
 <meta name="og:type" content="article" />
 <meta name="og:url" content="https://chieri0611.github.io/imascgstage/fungaincalc/" />
@@ -26,56 +26,90 @@
 <link rel="apple-touch-icon" href="https://chieri0611.github.io/imascgstage/apple-touch-icon.png" sizes="180x180" />
 <link rel="icon" type="image/png" href="https://chieri0611.github.io/imascgstage/android-touch-icon.png" sizes="192x192" />
 
+<!-- -------------------------------------------------------------------------------- -->
+
 <link rel="stylesheet" type="text/css" href="../style.css" />
 <style tyle="text/css">
+/* ========== Common Style(stand-alone) ========== */
+</style>
+
+
+<style tyle="text/css">
+/* ==================== Layout ==================== */
 .switch_button#calctype {text-align: center; }
 .switch_button#calctype > label { width: 200px; }
+
 #form_fun, #form_score { text-align: center; }
+
 input#min_fun, input#max_fun { width: 100px; }
 input#score { width: 200px; }
+
 #stamina > .radiobutton { width: 100px; }
+
+.button#cancel, .button#exec { width: 130px; }
 </style>
-<script type="text/javascript" src="/common.js" charset="UTF-8"></script>
+
+<!-- -------------------------------------------------------------------------------- -->
+
+<script type="text/javascript" src="../../common.js" charset="UTF-8"></script>
+
 <script type="text/javascript">
+// ======================= Common Script =======================
 
+/* $elem
+  -------------------------------------------------- */
+function $elem(selectors, parent) {
+  var parent_elem = parent != null ? parent : document;
+  return parent_elem.querySelector(selectors);
+}
+
+</script>
+
+
+<script type="text/javascript">
+// ==================== FanGainCalc Script ====================
+
+// ----- 計算種類の変更 ---------------
 function changeCalcType(elem) {
-    //計算種類の変更
     if(!elem.checked) return;
-    toggleClass(document.getElementById("form_fun"), "hidden", elem.id != "fun-to-score");
-    toggleClass(document.getElementById("form_score"), "hidden", elem.id != "score-to-fun");
+    toggleClass($elem("#form_fun"), "hidden", elem.id != "fun-to-score");
+    toggleClass($elem("#form_score"), "hidden", elem.id != "score-to-fun");
 }
 
+
+// ----- 入力内容をリセット ---------------
 function resetForm() {
-    //入力内容をリセット
-    document.getElementById("min_fun").value = "";
-    document.getElementById("max_fun").value = "";
-    document.getElementById("score").value = "";
-    document.getElementById("roomitem").selectedIndex = 0;
-    document.getElementById("produceplan").selectedIndex = 0;
-    document.getElementById("campaign").selectedIndex = 0;
-    document.getElementById("center").selectedIndex = 0;
-    document.getElementById("guest").selectedIndex = 0;
-    document.getElementById("stamina_1").checked = true;
-    document.getElementById("premium_pass").checked = false;
-    document.getElementById("calc_result").innerHTML = "";
-    toggleClass(document.getElementById("just_err"), "hidden", true);
+    $elem("#min_fun").value = "";
+    $elem("#max_fun").value = "";
+    $elem("#score").value = "";
+    $elem("#roomitem").selectedIndex = 0;
+    $elem("#produceplan").selectedIndex = 0;
+    $elem("#campaign").selectedIndex = 0;
+    $elem("#center").selectedIndex = 0;
+    $elem("#guest").selectedIndex = 0;
+    $elem("#stamina_1").checked = true;
+    $elem("#premium_pass").checked = false;
+    $elem("#calc_result").innerHTML = "";
+    toggleClass($elem("#just_err"), "hidden", true);
 }
 
 
+// ----- 計算実行関数 ---------------
 function execCalc() {
-    //計算実行関数
-
     var temp_val;
 
-    //入力値取得
+    // 入力値取得
     var calctype = getRadioValue("calctype");
 
+    // エラーチェック
     switch(calctype) {
         case "fun-to-score":
-            var min_fun = document.getElementById("min_fun").value;
-            var max_fun = document.getElementById("max_fun").value;
+            var min_fun = $elem("#min_fun").value;
+            var max_fun = $elem("#max_fun").value;
+
             if(min_fun == "" && max_fun != "") min_fun = max_fun;
             if(min_fun != "" && max_fun == "") max_fun = min_fun;
+
             min_fun = Number(min_fun); max_fun = Number(max_fun);
             if(min_fun == 0 && max_fun == 0) return;
             if(!Number.isInteger(min_fun) || !Number.isInteger(max_fun)) {
@@ -87,7 +121,7 @@ function execCalc() {
             break;
 
         case "score-to-fun":
-            var score = Number(document.getElementById("score").value);
+            var score = Number($elem("#score").value);
             if(score == 0) return;
             if(!Number.isInteger(score)) {
                 alert('スコアが正しく入力されていません。'); return;
@@ -95,119 +129,82 @@ function execCalc() {
             break;
     }
 
-    var roomitem = 0;
-    if(document.getElementById("roomitem").value != "none") {
-        roomitem = Number(document.getElementById("roomitem").value);
-    }
-
-    var produceplan = 0;
-    if(document.getElementById("produceplan").value != "none") {
-        produceplan = Number(document.getElementById("produceplan").value);
-    }
-
-    var campaign = 1;
-    switch(document.getElementById("campaign").value) {
-        case "2": campaign = 2; break;
-    }
-
-    var center = 0;
-    switch(document.getElementById("center").value) {
-        case "sr_cutecross": center= 0.08; break;
-        case "ssr_cutecross": center = 0.1; break;
-        case "sr_charm": center = 0.32; break;
-        case "ssr_charm": center = 0.4; break;
-    }
-
-    var guest = 0;
-    switch(document.getElementById("guest").value) {
-        case "sr_cutecross": guest= 0.08; break;
-        case "ssr_cutecross": guest = 0.1; break;
-        case "sr_charm": guest = 0.32; break;
-        case "ssr_charm": guest = 0.4; break;
-    }
-
-    var stamina = Number(getRadioValue("stamina"));
-
-    var premium_pass = 1;
-    if(document.getElementById("premium_pass").checked) premium_pass = 1.1;
-
+    // パラメータ
     var param = {
-        roomitem: roomitem,
-        center: center,
-        guest: guest,
-        campaign: campaign,
-        produceplan: produceplan,
-        premium_pass: premium_pass,
-        stamina: stamina,
+        roomitem: 0,
+        produceplan: 0,
+        campaign: 1,
+        center: 0,
+        guest: 0,
+        stamina: 1,
+        premium_pass: 1,
         livemode: "normal"
     };
+
+
+    // パラメータ値取得: ルームアイテム
+    if($elem("#roomitem").value != "none") {
+        param.roomitem = Number($elem("#roomitem").value);
+    }
+
+    // パラメータ値取得: プロデュース方針
+    if($elem("#produceplan").value != "none") {
+        param.produceplan = Number($elem("#produceplan").value);
+    }
+
+    // パラメータ値取得: キャンペーン効果
+    switch($elem("#campaign").value) {
+        case "2": param.campaign = 2; break;
+    }
+
+    // パラメータ値取得: センター効果
+    switch($elem("#center").value) {
+        case "sr_cutecross": param.center= 0.08; break;
+        case "ssr_cutecross": param.center = 0.1; break;
+        case "sr_charm": param.center = 0.32; break;
+        case "ssr_charm": param.center = 0.4; break;
+        case "star_charm": param.center = 0.55; break;
+    }
+
+    // パラメータ値取得: ゲストセンター効果
+    switch($elem("#guest").value) {
+        case "sr_cutecross": param.guest= 0.08; break;
+        case "ssr_cutecross": param.guest = 0.1; break;
+        case "sr_charm": param.guest = 0.32; break;
+        case "ssr_charm": param.guest = 0.4; break;
+        case "star_charm": param.guest = 0.55; break;
+    }
+
+    // パラメータ値取得: スタミナ消費量
+    param.stamina = Number(getRadioValue("stamina"));
+
+    // パラメータ値取得: プレミアムパス
+    if($elem("#premium_pass").checked) param.premium_pass = 2;
+
 
 
     switch(calctype) {
         //スコア→ファン数計算
         case "score-to-fun":
             var fungain = score_to_fun(score, param);
-            document.getElementById("calc_result").innerHTML = "獲得ファン数: " + fungain.toLocaleString() + "人";
-            toggleClass(document.getElementById("just_err"), "hidden", true);
+
+            $elem("#calc_result").innerHTML = "獲得ファン数: " + fungain.toLocaleString() + "人";
+            toggleClass($elem("#just_err"), "hidden", true);
             break;
 
 
         //ファン数→スコア計算
         case "fun-to-score":
-            var plan = Decimal.plus(1, produceplan);
-            var bonus = Decimal.plus(Decimal.plus(Decimal.plus(1, roomitem), center), guest);
+            var calc_val = fun_to_score(min_fun, max_fun, param);
 
-            var max_score = Math.floor(Decimal.div(max_fun, premium_pass));
-            max_score = Decimal.div(max_score, plan);
-            max_score = Math.floor(Decimal.div(max_score, stamina));
-            max_score = Math.floor(Decimal.div(max_score, campaign));
-            max_score = Decimal.div(max_score, bonus);
-            max_score = Math.floor(Decimal.times(max_score, 1000));
-            var fungain = score_to_fun(max_score, param);
+            var result_elemcode = "スコア: " + calc_val.min_score.toString();
+            result_elemcode += '<span class="small_text">（' + calc_val.min_fungain.toLocaleString() + '人）</span>';
+            result_elemcode += " ～ ";
+            result_elemcode += calc_val.max_score.toString();
+            result_elemcode += '<span class="small_text">（' + calc_val.max_fungain.toLocaleString() + '人）</span>';
 
-            if(max_fun < fungain) {
-                do {
-                    max_score--; fungain = score_to_fun(max_score, param);
-                } while(max_fun < fungain);
-            } else {
-                do {
-                    max_score++; fungain = score_to_fun(max_score, param);
-                } while(max_fun >= fungain);
-                max_score--;
-            }
-            var max_fungain = score_to_fun(max_score, param);
-
-
-            var min_score = Math.floor(Decimal.div(min_fun - 1, stamina));
-            min_score = Math.floor(Decimal.div(min_score, premium_pass));
-            min_score = Decimal.div(min_score, plan);
-            min_score = Math.floor(Decimal.div(min_score, campaign));
-            min_score = Decimal.div(min_score, bonus);
-            min_score = Math.floor(Decimal.times(min_score, 1000));
-            fungain = score_to_fun(min_score, param);
-
-            if(min_fun > fungain) {
-                do {
-                    min_score++; fungain = score_to_fun(min_score, param);
-                } while(min_fun > fungain);
-            } else {
-                do {
-                    min_score--; fungain = score_to_fun(min_score, param);
-                } while(min_fun <= fungain);
-                min_score++;
-            }
-            var min_fungain = score_to_fun(min_score, param);
-
-            if(min_score > max_score) {
-                temp_val = max_score; max_score = min_score; min_score = temp_val;
-                temp_val = max_fungain; max_fungain = min_fungain; min_fungain = temp_val;
-            }
-
-            var just_err = (min_fun == max_fun && min_fun != min_fungain && max_fun != max_fungain);
-            max_fungain = '<span class="small_text">（' + max_fungain.toLocaleString() + '人）</span>';
-            min_fungain = '<span class="small_text">（' + min_fungain.toLocaleString() + '人）</span>';
-            document.getElementById("calc_result").innerHTML = "スコア: " + min_score + min_fungain + " ～ " + max_score + max_fungain;
-            toggleClass(document.getElementById("just_err"), "hidden", !just_err);
+            $elem("#calc_result").innerHTML = result_elemcode;
+            toggleClass($elem("#just_err"), "hidden", calc_val.just);
             break;
     }
 
@@ -216,21 +213,122 @@ function execCalc() {
 }
 
 
+/*
+ファン数計算式
+ceil(
+  ceil(
+    ceil(
+      score * 0.001 * (1 + roomitem + center)
+    )
+    * campaign
+    * produceplan
+    * stamina
+  )
+  * premium_pass
+)
+*/
+// ----- スコア→獲得ファン数計算 ---------------
 function score_to_fun(score, param) {
-    //獲得ファン数計算
-    var fungain = Decimal.times(score, 0.001);
     var bonus = Decimal.plus(Decimal.plus(Decimal.plus(1, param.roomitem), param.center), param.guest);
+    var fungain = Decimal.times(score, 0.001);
     fungain = Math.ceil(Decimal.times(fungain, bonus));
+
     fungain = fungain * param.campaign;
     fungain = fungain * param.stamina;
     bonus = Decimal.plus(1, param.produceplan);
     fungain = Math.ceil(Decimal.times(fungain, bonus));
+
     fungain = Math.ceil(Decimal.times(fungain, param.premium_pass));
+
     return fungain;
 }
+
+
+// ----- ファン数→必要スコア計算 ---------------
+function fun_to_score(min_fun, max_fun, param) {
+    var temp_val;
+
+    if(min_fun > max_fun) {
+        temp_val = max_fun; max_fun = min_fun; min_fun = temp_val;
+    }
+
+    var calc_val = {
+        min_score: 0,
+        min_fungain: 0,
+        max_score: 0,
+        max_fungain: 0,
+        just: false
+    }
+
+    const plan = Decimal.plus(1, param.produceplan);
+    const bonus = Decimal.plus(Decimal.plus(Decimal.plus(1, param.roomitem), param.center), param.guest);
+
+
+    var max_score = Math.floor(Decimal.div(max_fun, param.premium_pass));
+    max_score = Decimal.div(max_score, plan);
+    max_score = Math.floor(Decimal.div(max_score, param.stamina));
+    max_score = Math.floor(Decimal.div(max_score, param.campaign));
+    max_score = Decimal.div(max_score, bonus);
+    max_score = Math.floor(Decimal.times(max_score, 1000));
+    var fungain = score_to_fun(max_score, param);
+
+
+    //max_fun超えるならscore減らす =max_funになったscoreがmax_score
+    //max_funと同じ・少ないならscore増やす max_fun超えたらscore-1がmax_score
+    if(max_fun < fungain) {
+        do {
+            max_score--; fungain = score_to_fun(max_score, param);
+        } while(max_fun < fungain);
+    } else {
+        do {
+            max_score++; fungain = score_to_fun(max_score, param);
+        } while(max_fun >= fungain);
+        max_score--;
+    }
+
+
+    var min_score = Math.floor(Decimal.div(min_fun - 1, param.stamina));
+    min_score = Math.floor(Decimal.div(min_score, param.premium_pass));
+    min_score = Decimal.div(min_score, plan);
+    min_score = Math.floor(Decimal.div(min_score, param.campaign));
+    min_score = Decimal.div(min_score, bonus);
+    min_score = Math.floor(Decimal.times(min_score, 1000));
+    fungain = score_to_fun(min_score, param);
+
+
+    //min_funより少ないならscore増やす =min_funになったscoreがmin_score
+    //min_funと同じ・多いならscore減らす min_funより少なくなったscore+1がmin_score
+    if(min_fun > fungain) {
+        do {
+            min_score++; fungain = score_to_fun(min_score, param);
+        } while(min_fun > fungain);
+    } else {
+        do {
+            min_score--; fungain = score_to_fun(min_score, param);
+        } while(min_fun <= fungain);
+        min_score++;
+    }
+
+
+    if(min_score > max_score) {
+        calc_val.min_score = max_score;
+        calc_val.max_score = min_score;
+    } else {
+        calc_val.min_score = min_score;
+        calc_val.max_score = max_score;
+    }
+
+    calc_val.min_fungain = score_to_fun(calc_val.min_score, param);
+    calc_val.max_fungain = score_to_fun(calc_val.max_score, param);
+    calc_val.just = (min_fun == max_fun && min_fun == calc_val.min_fungain && max_fun == calc_val.max_fungain);
+
+
+    return calc_val;
+}
+
 </script>
 
-
+<!-- -------------------------------------------------------------------------------- -->
 
 </head>
 <body class="theme_dialog">
@@ -310,6 +408,7 @@ function score_to_fun(score, param) {
         <option value="ssr_cutecross">SSRキュートクロス（10%UP）</option>
         <option value="sr_charm">SRチャーム（32%UP）</option>
         <option value="ssr_charm">SSRチャーム（40%UP）</option>
+        <option value="star_charm">スターライトチャーム（55%UP）</option>
       </select></div>
     </div>
 
@@ -321,6 +420,7 @@ function score_to_fun(score, param) {
         <option value="ssr_cutecross">SSRキュートクロス（10%UP）</option>
         <option value="sr_charm">SRチャーム（32%UP）</option>
         <option value="ssr_charm">SSRチャーム（40%UP）</option>
+        <option value="star_charm">スターライトチャーム（55%UP）</option>
       </select></div>
     </div>
 
@@ -345,7 +445,7 @@ function score_to_fun(score, param) {
 
   <div class="content_block">
     <h1>プレミアムパス</h1>
-    <div class="checkbox"><input type="checkbox" id="premium_pass" /><label for="premium_pass">プレミアムパス契約（10%UP）</label></div>
+    <div class="checkbox"><input type="checkbox" id="premium_pass" /><label for="premium_pass">プレミアムパス契約（100%UP）</label></div>
   </div>
 
   <div class="content_block">
